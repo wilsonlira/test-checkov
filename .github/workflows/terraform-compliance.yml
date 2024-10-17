@@ -1,0 +1,46 @@
+name: Terraform Compliance and Deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Compliance and Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      # Etapa 1: Checkout do código do repositório
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Etapa 2: Instalação do Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      # Etapa 3: Instalação do Checkov
+      - name: Install Checkov for NIST compliance checks
+        run: pip install checkov
+
+      # Etapa 4: Executa o Checkov para validar o código Terraform (Compliance)
+      - name: Run Checkov to check NIST compliance
+        run: checkov -d ./terraform
+
+      # Etapa 5: Inicializa o Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # Etapa 6: Executa o Terraform Plan (sem aplicar mudanças ainda)
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      # Etapa 7: Aplica o Terraform caso o checkov passe
+      - name: Terraform Apply
+        if: success() # Só aplica se o check de conformidade passar
+        run: terraform apply -auto-approve "tfplan"
