@@ -30,7 +30,7 @@ jobs:
 
       # Etapa 4: Executa o Checkov para validar o código Terraform (Compliance)
       - name: Run Checkov to check NIST compliance
-        run: checkov -d ./terraform
+        run: checkov -d .
 
       # Etapa 5: Inicializa o Terraform
       - name: Terraform Init
